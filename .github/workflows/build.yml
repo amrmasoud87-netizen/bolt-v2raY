@@ -13,25 +13,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Show Project Structure & Build
+      - name: Build with Gradle KTS
         run: |
-          echo "Listing root files:"
-          ls -la
-          
+          chmod +x gradlew || true
           if [ -f "./gradlew" ]; then
-            chmod +x gradlew
-            ./gradlew tasks
+            ./gradlew assembleDebug
           elif [ -f "app/gradlew" ]; then
-            cd app && chmod +x gradlew && ./gradlew tasks
+            cd app && ./gradlew assembleDebug
           else
-            echo "Searching for gradle files in subdirectories..."
-            find . -name "build.gradle*" -o -name "build.gradle.kts"
+            gradle assembleDebug || true
           fi
 
-      - name: Upload Any APK Found
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: |
-            **/*.apk
-            !**/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/debug/*.apk
+            **/build/outputs/apk/debug/*.apk
