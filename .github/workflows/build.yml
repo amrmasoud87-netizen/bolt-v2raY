@@ -13,28 +13,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Force Build and Locate APK
+      - name: Find and Build APK
         run: |
-          echo "Searching for gradle files..."
-          find . -name "gradlew" -exec chmod +x {} \;
-          
-          if [ -f "./gradlew" ]; then
-            ./gradlew assembleDebug --stacktrace
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug
           elif [ -f "app/gradlew" ]; then
-            cd app && ./gradlew assembleDebug --stacktrace
+            cd app && chmod +x gradlew && ./gradlew assembleDebug
           else
-            echo "No gradlew found, installing standard gradle..."
-            sudo apt-get update && sudo apt-get install -y gradle
-            gradle build || true
+            find . -name "gradlew" -execdir chmod +x {} \; -execdir ./gradlew assembleDebug \;
           fi
-          
-          echo "Listing all generated APKs:"
-          find . -name "*.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: |
-            **/*.apk
-            !**/build/outputs/apk/release/*.apk
+          path: '**/build/outputs/apk/debug/*.apk'
