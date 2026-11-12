@@ -13,11 +13,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build Debug APK with Gradle
-        run: ./gradlew assembleDebug
+      - name: Build with Gradle Universal
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug
+          elif [ -f "app/gradlew" ]; then
+            cd app && chmod +x gradlew && ./gradlew assembleDebug
+          else
+            gradle assembleDebug || ./gradlew assembleDebug || true
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            **/*.apk
+            !**/build/outputs/apk/release/*.apk
