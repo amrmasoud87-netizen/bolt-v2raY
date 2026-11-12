@@ -13,21 +13,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Make Gradle Wrapper Executable
+      - name: Build with Gradle
         run: |
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-          elif [ -f "gradlew" ]; then
-            chmod +x gradlew
-          else
-            gradle wrapper
-            chmod +x ./gradlew
-          fi
-
-      - name: Build Debug APK
-        run: |
+          chmod +x gradlew || true
           if [ -f "./gradlew" ]; then
             ./gradlew assembleDebug
+          elif [ -f "app/gradlew" ]; then
+            cd app && ./gradlew assembleDebug
           else
             gradle assembleDebug
           fi
